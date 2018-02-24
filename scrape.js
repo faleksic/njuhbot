@@ -1,34 +1,42 @@
 var express = require('express');
-var fs = require('fs');
 var cheerio = require('cheerio');
 var app     = express();
-var rp = require('request-promise');
+var rp      = require('request-promise');
+var mysql   = require('mysql'); 
+
+var posts = [];
 
 app.get('/scrape', function(req, res) {
-    url = 'https://www.njuskalo.hr/prodaja-stanova/bjelovarsko-bilogorska';
+    requestUrl();
+});
 
-    rp(url).then((data) => {
+function requestUrl() {
+    url = 'https://www.njuskalo.hr/iznajmljivanje-stanova/varazdinska';
 
-        if(!error){
-            // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
-
-            var $ = cheerio.load(html);
-
-            // Finally, we'll define the variables we're going to capture
-            $('.entity-title').filter(function() {
-                var data = $(this);
-                console.log(data.children().first().text());
-            });
-
-            var title, release, rating;
-            var json = { title : "", release : "", rating : ""};
-        }
+    rp(url)
+    .then((data) => {
+        scrapeData(data);
+        console.log(posts);
     })
+    .catch((err) => {
+		console.log(err);
+    });
+}
 
-})
+function scrapeData(html) {
+    var $ = cheerio.load(html);
+
+    // Finally, we'll define the variables we're going to capture
+    $('.EntityList-item--Regular').filter(function() {
+        var data = $(this);
+        posts.push(data.data("options").id);
+    });
+
+    var title, release, rating;
+    var json = { title : "", release : "", rating : ""};
+}
+
 
 app.listen('8081')
 
 console.log('Magic happens on port 8081');
-
-exports = module.exports = app;
