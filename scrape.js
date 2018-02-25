@@ -6,6 +6,27 @@ var mysql   = require('mysql');
 
 var posts = [];
 
+app.listen('8081')
+
+console.log('Magic happens on port 8081');
+
+var con = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: "njuhbot"
+});
+
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+  var sql = "SELECT * FROM user;";
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log(result);
+  });
+});
+
 app.get('/scrape', function(req, res) {
     requestUrl();
 });
@@ -28,15 +49,6 @@ function scrapeData(html) {
 
     // Finally, we'll define the variables we're going to capture
     $('.EntityList-item--Regular').filter(function() {
-        var data = $(this);
-        posts.push(data.data("options").id);
+        posts.push($(this).data("options").id);
     });
-
-    var title, release, rating;
-    var json = { title : "", release : "", rating : ""};
 }
-
-
-app.listen('8081')
-
-console.log('Magic happens on port 8081');
