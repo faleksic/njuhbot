@@ -8,11 +8,15 @@ const
   bodyParser = require('body-parser'),
   request = require('request'),
   app = express().use(bodyParser.json()), // creates express http server
-  controllers = require('./controllers');
+  controllers = require('./controllers'),
+  db          = require('./db');
 
-const PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
+
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
-controllers.set(app);
+var myDB = new db.DB(process.env.DB_HOST, process.env.DB_USER, process.env.DB_PASS, process.env.DB_DATABASE);
+myDB.connect();
+
+controllers.set(app, myDB);

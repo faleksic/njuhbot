@@ -1,4 +1,10 @@
-module.exports.set = function(app) {
+const 
+  request = require('request'),
+  scrape  = require('../scrape');
+
+require('dotenv').config();
+
+module.exports.set = function(app, db) {
     app.post('/webhook', (req, res) => {  
  
         let body = req.body;
@@ -54,6 +60,8 @@ module.exports.set = function(app) {
           }
         }
     });
+
+    scrape.set(app, db);
 }
 
 function handleMessage(senderPsid, receivedMessage) {
@@ -73,12 +81,13 @@ function handleMessage(senderPsid, receivedMessage) {
         "text": "Žao mi je, ali ja razumijem samo tekst!"
         }
     } 
-    
+
     // Sends the response message
     callSendAPI(senderPsid, response);    
 }
 
 function callSendAPI(senderPsid, response) {
+    const PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;    
     // Construct the message body
     let requestBody = {
         "recipient": {
