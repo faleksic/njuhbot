@@ -7,7 +7,7 @@ const
   express = require('express'),
   bodyParser = require('body-parser'),
   request = require('request'),
-  app = express().use(bodyParser.json()), // creates express http server
+  app = express().use(bodyParser.urlencoded({extended: true})), // creates express http server
   controllers = require('./controllers'),
   db          = require('./db');
 

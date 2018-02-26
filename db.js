@@ -20,18 +20,24 @@ class DB
     }
 
     request(sql, callback) {
-        this.con.query("SELECT * FROM request", function (err, result, fields) {
+        this.con.query(sql, function (err, result, fields) {
             if (err) throw err;
             callback(result);
           });
     }
 
-    getUsers() {
-
+    getUsers(callback) {
+        var sql = "SELECT id, name, psid FROM user";
+        this.request(sql, function(data) {
+                callback(data); 
+        });
     }
 
-    getUser(psid) {
-
+    getUser(psid, callback) {
+        var sql = "SELECT id, name, psid FROM user WHERE psid=" + this.con.escape(psid);
+        this.request(sql, function(data) {
+                callback(data); 
+        });
     }
 
     insertUser(psid, name) {
@@ -43,19 +49,32 @@ class DB
     }
 
     getRequests(callback) {
-        var sql = "SELECT * FROM request";
-       this.request(sql, function(data) {
-            callback(data); 
-       });
-
+        var sql = "SELECT id, url, last_ping FROM request";
+        this.request(sql, function(data) {
+                callback(data); 
+        });
     }
 
-    getRequest(id) {
-
+    getRequest(url, callback) {
+        var sql = "SELECT id, url, last_ping FROM request WHERE url=" + this.con.escape(url);
+        this.request(sql, function(data) {
+                callback(data); 
+        });
     }
 
-    insertRequest(url) {
+    insertRequest(url, callback) {
+        var date = new Date();
+        let now  = date.getUTCFullYear() + "-" 
+        + twoDigits(1 + date.getUTCMonth()) 
+        + "-" + twoDigits(date.getUTCDate()) 
+        + " " + twoDigits(date.getUTCHours()) 
+        + ":" + twoDigits(date.getUTCMinutes()) 
+        + ":" + twoDigits(date.getUTCSeconds());
 
+        var sql = "INSERT INTO request(url, last_ping) VALUES(" + this.con.escape(url) + ", '" + now +"')";
+        this.request(sql, function(data) {
+                callback(data); 
+        });
     }
 
     deleteRequest(url) {
@@ -72,3 +91,9 @@ class DB
 }
 
 module.exports.DB = DB;
+
+function twoDigits(d) {
+    if(0 <= d && d < 10) return "0" + d.toString();
+    if(-10 < d && d < 0) return "-0" + (-1*d).toString();
+    return d.toString();
+}
